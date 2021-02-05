@@ -1,0 +1,9 @@
+/env
+__pycache__/
+*.py[cod]
+
+apiKey.txt
+pgConnect.ps1
+.env
+log.txt
+
