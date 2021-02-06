@@ -1,7 +1,8 @@
-import os
+# import os
+import importlib
 
-def package_path(*paths, package_directory=os.path.dirname(os.path.abspath(__file__))):
-  return os.path.join(package_directory, *paths)
+# def package_path(*paths, package_directory=os.path.dirname(os.path.abspath(__file__))):
+#   return os.path.join(package_directory, *paths)
 
 m_start = "Тут Ви можете отримати інформацію про:\n\
   - контакти підрозділів Експертної служби МВС України \U0001F1FA\U0001F1E6\n\
@@ -19,4 +20,10 @@ MESSAGES = {
 }
 
 def getDepInfoByType(id, type='contacts'):
-  return open(package_path(f'dep{id}',f'{type}.md'),'r').read()
+  spec = importlib.util.find_spec(f'.{type}', package=f'.messages.dep{id}')
+  m = spec.loader.load_module()
+  # m = importlib.import_module(f'{type}', package=f'.messages.dep{id}')
+  msg = m.msg
+  # from .dep0 import contacts
+  # msg = contacts.msg
+  return msg

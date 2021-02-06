@@ -71,8 +71,9 @@ async def show_info_of_type(callback_query: types.CallbackQuery, state: config.F
   
   data = await state.get_data()
   dep_id = data.get('dep_id')
+  msg = getDepInfoByType(dep_id, callback_query.data)
 
-  await callback_query.message.edit_text(getDepInfoByType(dep_id, callback_query.data), parse_mode='Markdown')
+  await callback_query.message.edit_text(msg, parse_mode='Markdown')
   await callback_query.message.edit_reply_markup(kbMenu)
 
 async def shutdown(dispatcher: Dispatcher):
