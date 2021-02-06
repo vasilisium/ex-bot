@@ -16,6 +16,15 @@ from .keyboards.deps import kbList
 from .keyboards.deps import kbMenu
 from .keyboards.deps import kbInfo
 
+import aiohttp
+import asyncio
+
+async def getMsg(id, type='contacts'):
+  async with aiohttp.ClientSession() as session:
+    async with session.get(f'https://raw.githubusercontent.com/vasilisium/ex-bot/main/messages/dep{id}/{type}.md') as response:
+      m = await response.text()
+      return m
+
 bot = Bot(token=config.BOT_API_KEY)
 dp = Dispatcher(bot, storage=config.MemoryStorage())
 dp.middleware.setup(config.LoggingMiddleware())
@@ -53,7 +62,9 @@ async def show_dep_menu(callback_query: types.CallbackQuery, state:config.FSMCon
   async with state.proxy() as data:
     data['dep_id'] = dep_id
 
-  await callback_query.message.edit_text(getDepInfoByType(dep_id), parse_mode='Markdown')
+  depMsg = await getMsg(dep_id)
+
+  await callback_query.message.edit_text(depMsg, parse_mode='Markdown')
   await callback_query.message.edit_reply_markup(kbMenu)
 
 @dp.callback_query_handler(lambda c: c.data == 'depsInfo', state=ExStates.sDep)
@@ -71,9 +82,9 @@ async def show_info_of_type(callback_query: types.CallbackQuery, state: config.F
   
   data = await state.get_data()
   dep_id = data.get('dep_id')
-  msg = getDepInfoByType(dep_id, callback_query.data)
+  depMsg = await getMsg(dep_id, callback_query.data)
 
-  await callback_query.message.edit_text(msg, parse_mode='Markdown')
+  await callback_query.message.edit_text(depMsg, parse_mode='Markdown')
   await callback_query.message.edit_reply_markup(kbMenu)
 
 async def shutdown(dispatcher: Dispatcher):
