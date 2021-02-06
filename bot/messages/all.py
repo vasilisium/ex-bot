@@ -18,5 +18,5 @@ MESSAGES = {
   'info': m_Info,
 }
 
-def getDepInfo(id, type='contacts'):
+def getDepInfoByType(id, type='contacts'):
   return open(package_path(f'dep{id}',f'{type}.md'),'r').read()
