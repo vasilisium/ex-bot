@@ -31,14 +31,14 @@ dp.middleware.setup(config.LoggingMiddleware())
 async def start_command_handler(message:types.Message):
   await message.answer(msg['hi'], reply_markup=startKeyboard)
 
-@dp.callback_query_handler(lambda c: c.data == 'home', state=[None, ExStates.sDep])
+@dp.callback_query_handler(lambda c: c.data == 'home')
 async def show_start_messame(callback_query: types.CallbackQuery, state: config.FSMContext):
   await bot.answer_callback_query(callback_query.id)
   await callback_query.message.edit_text(msg['start'])
   await callback_query.message.edit_reply_markup(startKeyboard)
   await state.reset_state()
 
-@dp.callback_query_handler(lambda c: c.data =='getDeps', state=[None, ExStates.sDep])
+@dp.callback_query_handler(lambda c: c.data =='getDeps')
 async def show_deps(callback_query: types.CallbackQuery):
   await bot.answer_callback_query(callback_query.id)
   await callback_query.message.edit_text(msg['deps'])
@@ -49,7 +49,7 @@ async def show_dep_menu(callback_query: types.CallbackQuery, state:config.FSMCon
   await bot.answer_callback_query(callback_query.id)
   
   dep_id = int(callback_query.data[7:])
-  await ExStates.sDep.set()
+  # await ExStates.sDep.set()
   async with state.proxy() as data:
     data['dep_id'] = dep_id
 
@@ -58,25 +58,28 @@ async def show_dep_menu(callback_query: types.CallbackQuery, state:config.FSMCon
   await callback_query.message.edit_text(depMsg, parse_mode='Markdown')
   await callback_query.message.edit_reply_markup(kbMenu)
 
-@dp.callback_query_handler(lambda c: c.data == 'depsInfo', state=ExStates.sDep)
-async def show_dep_menu(callback_query: types.CallbackQuery, state:config.FSMContext):
+@dp.callback_query_handler(lambda c: c.data == 'depsInfo')
+async def show_dep_menu(callback_query: types.CallbackQuery):
   await bot.answer_callback_query(callback_query.id)
-  # data = await state.get_data()
-  # dep_id = data.get('dep_id')
   
   await callback_query.message.edit_text(msg['info'])
   await callback_query.message.edit_reply_markup(kbInfo)
 
-@dp.callback_query_handler(lambda c: c.data in ['contacts', 'administration', 'hours', 'aditional'], state=ExStates.sDep)
+@dp.callback_query_handler(lambda c: c.data in ['contacts', 'administration', 'hours', 'aditional'])
 async def show_info_of_type(callback_query: types.CallbackQuery, state: config.FSMContext):
   await bot.answer_callback_query(callback_query.id)
   
   data = await state.get_data()
   dep_id = data.get('dep_id')
-  depMsg = await getMsg(dep_id, callback_query.data)
+  if dep_id is not None :
+    depMsg = await getMsg(dep_id, callback_query.data)
 
-  await callback_query.message.edit_text(depMsg, parse_mode='Markdown')
-  await callback_query.message.edit_reply_markup(kbMenu)
+    await callback_query.message.edit_text(depMsg, parse_mode='Markdown')
+    await callback_query.message.edit_reply_markup(kbMenu)
+  else:
+    await callback_query.message.edit_text(msg['deps'])
+    await callback_query.message.edit_reply_markup(kbList)
+
 
 async def shutdown(dispatcher: Dispatcher):
   await dispatcher.storage.close()
