@@ -8,7 +8,7 @@ from . import config
 from .messages.all import MESSAGES as msg
 from .messages.all import getDepInfoByType
 
-from .keyboards.start import startKeyboard
+from .keyboards.start import startKeyboard, devKeyboard
 
 from .keyboards.deps import kbList
 from .keyboards.deps import kbMenu
@@ -17,6 +17,10 @@ from .keyboards.deps import kbInfo
 import aiohttp
 import asyncio
 
+"""Отримання твмісту *.md файлів з githab для певного підрозділу за типом інформації відображення
+id - ідентифікатор підрозділу
+type - тип інформації, а фактично ім'я файлу (за замовченням 'contacts')
+"""
 async def getMsg(id, type='contacts'):
   async with aiohttp.ClientSession() as session:
     async with session.get(f'https://raw.githubusercontent.com/vasilisium/ex-bot/main/messages/dep{id}/{type}.md') as response:
@@ -42,7 +46,7 @@ async def show_start_messame(callback_query: types.CallbackQuery, state: config.
   await callback_query.message.edit_reply_markup(startKeyboard)
   await state.reset_state()
 
-@dp.callback_query_handler(lambda c: c.data =='getDeps')
+@dp.callback_query_handler(lambda c: c.data == 'getDeps')
 async def show_deps(callback_query: types.CallbackQuery):
   await bot.answer_callback_query(callback_query.id)
   await callback_query.message.edit_text(msg['deps'])
@@ -84,6 +88,11 @@ async def show_info_of_type(callback_query: types.CallbackQuery, state: config.F
     await callback_query.message.edit_text(msg['deps'])
     await callback_query.message.edit_reply_markup(kbList)
 
+@dp.callback_query_handler(lambda c: c.data == 'btnPrices')
+async def show_services(callback_query: types.CallbackQuery):
+  await bot.answer_callback_query(callback_query.id)
+  await callback_query.message.edit_text(msg['uc'])
+  await callback_query.message.edit_reply_markup(devKeyboard)
 
 async def shutdown(dispatcher: Dispatcher):
   await dispatcher.storage.close()
