@@ -20,8 +20,12 @@ import asyncio
 async def getMsg(id, type='contacts'):
   async with aiohttp.ClientSession() as session:
     async with session.get(f'https://raw.githubusercontent.com/vasilisium/ex-bot/main/messages/dep{id}/{type}.md') as response:
-      m = await response.text()
-      return m
+      status = response.status
+      if status == 200:
+        m = await response.text()
+        return m
+      
+      return msg['dev']
 
 bot = Bot(token=config.BOT_API_KEY)
 dp = Dispatcher(bot, storage=config.MemoryStorage())
