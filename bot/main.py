@@ -5,8 +5,6 @@ from aiogram.dispatcher.filters.state import State
 from aiogram.utils import executor
 from . import config
 
-from .states import ExStates
-
 from .messages.all import MESSAGES as msg
 from .messages.all import getDepInfoByType
 
@@ -28,13 +26,6 @@ async def getMsg(id, type='contacts'):
 bot = Bot(token=config.BOT_API_KEY)
 dp = Dispatcher(bot, storage=config.MemoryStorage())
 dp.middleware.setup(config.LoggingMiddleware())
-
-# @dp.message_handler()
-# @dp.callback_query_handler()
-# async def watchMsg(state:config.FSMContext, message:types.Message, callback_query: types.CallbackQuery):
-#   print(state)
-#   print(message)
-#   print(callback_query)
 
 @dp.message_handler(Command("start"))
 async def start_command_handler(message:types.Message):
